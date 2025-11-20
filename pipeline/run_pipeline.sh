@@ -116,9 +116,9 @@ interactive_mode() {
     read -p "Run differential expression? (y/n): " run_de
     if [ "$run_de" = "y" ]; then
         if [ -n "${job3:-}" ]; then
-            job4=$(submit_job "04_differential_expression.sh" "Differential expression" "$job3")
+            job4=$(submit_job "04_differential_expression_no_harmony.sh" "Differential expression (No-Harmony)" "$job3")
         else
-            job4=$(submit_job "04_differential_expression.sh" "Differential expression" "")
+            job4=$(submit_job "04_differential_expression_no_harmony.sh" "Differential expression (No-Harmony)" "")
         fi
     fi
 
@@ -183,7 +183,7 @@ case ${STEP} in
         ;;
     4)
         echo -e "${BLUE}Running differential expression...${NC}"
-        submit_job "04_differential_expression.sh" "Differential expression" ""
+        submit_job "04_differential_expression_no_harmony.sh" "Differential expression (No-Harmony)" ""
         ;;
     5)
         echo -e "${BLUE}Running pathway enrichment...${NC}"
@@ -197,7 +197,7 @@ case ${STEP} in
         job1=$(submit_job "01_cellranger_count.sh" "CellRanger count" "")
         job2=$(submit_job "02_qc_filtering.sh" "QC and filtering" "$job1")
         job3=$(submit_job "03_integration_clustering_no_harmony.sh" "Integration and clustering (No-Harmony)" "$job2")
-        job4=$(submit_job "04_differential_expression.sh" "Differential expression" "$job3")
+        job4=$(submit_job "04_differential_expression_no_harmony.sh" "Differential expression (No-Harmony)" "$job3")
         job5=$(submit_job "05_pathway_enrichment.sh" "Pathway enrichment" "$job4")
 
         echo -e "${GREEN}All jobs submitted successfully!${NC}"

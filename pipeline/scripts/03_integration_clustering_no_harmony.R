@@ -269,19 +269,32 @@ write.csv(top10_markers, file.path(OUTPUT_DIR, "cluster_markers_top10.csv"), row
 
 cat("  Marker genes identified for all clusters\n\n")
 
-# Heatmap of top markers (using gene column, not rownames)
-png(file.path(OUTPUT_DIR, "plots", "09_top_markers_heatmap.png"), width = 14, height = 10, units = "in", res = 300)
-DoHeatmap(seurat_obj, features = top5_markers$gene, size = 3) +
-  scale_fill_gradientn(colors = c("blue", "white", "red"))
-dev.off()
+# Get unique genes for plotting
+heatmap_genes <- unique(top5_markers$gene)
+heatmap_genes <- heatmap_genes[!is.na(heatmap_genes) & heatmap_genes != ""]
+heatmap_genes <- heatmap_genes[heatmap_genes %in% rownames(seurat_obj)]
 
-# Dot plot of top markers (using gene column, not rownames)
-png(file.path(OUTPUT_DIR, "plots", "10_top_markers_dotplot.png"), width = 16, height = 10, units = "in", res = 300)
-DotPlot(seurat_obj, features = unique(top5_markers$gene)) +
-  RotatedAxis()
-dev.off()
+cat("  Genes for heatmap:", length(heatmap_genes), "\n")
 
-cat("  Marker visualization plots generated\n\n")
+if (length(heatmap_genes) > 0) {
+  # Heatmap of top markers (using gene column, not rownames)
+  p_heatmap <- DoHeatmap(seurat_obj, features = heatmap_genes, size = 3) +
+    scale_fill_gradientn(colors = c("blue", "white", "red"))
+
+  ggsave(file.path(OUTPUT_DIR, "plots", "09_top_markers_heatmap.png"),
+         plot = p_heatmap, width = 14, height = 10, dpi = 300)
+
+  # Dot plot of top markers (using gene column, not rownames)
+  p_dotplot <- DotPlot(seurat_obj, features = heatmap_genes) +
+    RotatedAxis()
+
+  ggsave(file.path(OUTPUT_DIR, "plots", "10_top_markers_dotplot.png"),
+         plot = p_dotplot, width = 16, height = 10, dpi = 300)
+
+  cat("  Marker visualization plots generated\n\n")
+} else {
+  cat("  WARNING: No valid genes found for heatmap!\n\n")
+}
 
 ################################################################################
 # 8. Automatic cell type annotation
@@ -402,9 +415,9 @@ cat("\n  Cluster composition analysis complete\n\n")
 cat("Step 11: Saving Seurat object...\n")
 cat("----------------------------------------------------------------\n")
 
-saveRDS(seurat_obj, file = "results/clustering/seurat_integrated_no_harmony.rds")
+saveRDS(seurat_obj, file = file.path(OUTPUT_DIR, "seurat_integrated.rds"))
 
-cat("  Object saved to results/clustering/seurat_integrated_no_harmony.rds\n\n")
+cat("  Object saved to", file.path(OUTPUT_DIR, "seurat_integrated.rds"), "\n\n")
 
 ################################################################################
 # 12. Generate summary report
@@ -434,10 +447,10 @@ cat("Clustering Complete (No Harmony Integration)\n")
 cat("================================================================\n")
 cat("End time:", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n")
 cat("\nOutputs:\n")
-cat("  - Seurat object: results/clustering/seurat_integrated.rds\n")
-cat("  - Cluster markers: results/clustering/cluster_markers_*.csv\n")
-cat("  - Plots: results/clustering/plots/\n")
-cat("  - Summary statistics: results/clustering/integration_summary.csv\n")
+cat("  - Seurat object:", file.path(OUTPUT_DIR, "seurat_integrated.rds"), "\n")
+cat("  - Cluster markers:", file.path(OUTPUT_DIR, "cluster_markers_*.csv"), "\n")
+cat("  - Plots:", file.path(OUTPUT_DIR, "plots/"), "\n")
+cat("  - Summary statistics:", file.path(OUTPUT_DIR, "integration_summary.csv"), "\n")
 cat("\nNotes:\n")
 cat("  - No batch correction was performed\n")
 cat("  - Check UMAP plots to assess batch effects\n")
