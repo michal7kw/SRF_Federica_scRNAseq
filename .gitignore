@@ -5,3 +5,4 @@ pipeline/results/cellranger
 *.rds
 *.gz
 *.txt
+pipeline/results/clustering/old
