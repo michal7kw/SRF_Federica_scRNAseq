@@ -1,0 +1,7 @@
+**/logs/
+pipeline/results/cellranger
+
+*.md
+*.rds
+*.gz
+*.txt
